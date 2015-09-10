@@ -58,7 +58,7 @@ make a column specification::
   function argument, to convert them.
 
 
-So the arguments to ``Col(...)`` are:
+So the arguments to ``Column(...)`` are:
 
 1. A mandatory column header.
 
@@ -72,7 +72,7 @@ So the arguments to ``Col(...)`` are:
 4. optional ``function`` is a function to transform the single result value
    (the default identity: ``lambda x:x``, i.e. no change)
 
-Then ``ColSpec`` provides useful methods:
+Then ``ColumnSpecification`` provides useful methods:
 
 1. ``inputs()`` gives the full list of input keys expected,
    which you can use as arguments to ``values()`` on a queryset::
@@ -103,9 +103,11 @@ Then ``ColSpec`` provides useful methods:
 Testing
 --------
 
-The ``testapp`` application sets up enough django context to run the tests::
+Tests use py.test::
 
-  $ python manage.py test testapp
+  $ pip install pytest
+
+  $ py.test
 
 
 
@@ -115,10 +117,10 @@ ToDo
 
 - Allow sort orter to be specified, e.g::
 
-    colspec = ColSpec(
-        Col('one', ascending=2),
-        Col('two'),
-        Col('three', descending=1),
+    colspec = ColumnSpecification(
+        Column('one', ascending=2),
+        Column('two'),
+        Column('three', descending=1),
     )
 
   And then, ``colsepc.order()`` would retrn::
@@ -138,7 +140,7 @@ ToDo
   At the moment ``reduce`` functions take a list as arguyments, so if I want to 
   write a lambda reduce function I have to accept a list::
 
-        Col('Profit', 
+        Column('Profit', 
             'sales', 
             'cost_of_sales', 
             reduce=lambda args: args[0] - args[1])
@@ -149,7 +151,7 @@ ToDo
   input values to ``function`` as ``*args``, then I can write 
   lambda funcions like this::
         
-        Col('Profit', 
+        Column('Profit', 
             'sales', 
             'cost_of_sales', 
             function=lambda income, cost: income - cost)

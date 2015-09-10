@@ -1,1 +1,4 @@
-from col_spec.py import ColSpec, Col
+from col_spec import (
+    ColumnSpecification,
+    Column,
+)

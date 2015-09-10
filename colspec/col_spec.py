@@ -1,4 +1,4 @@
-class Col(object):
+class Column(object):
 
     def __init__(self, header, *input_keys, **kwargs):
         """
@@ -29,7 +29,7 @@ class Col(object):
                     [context.get(key, self.default) for key in self.keys]))
 
 
-class ColSpec(object):
+class ColumnSpecification(object):
     """
     Columns specification for spreadsheet export.
     Spreadsheet wants list of lists with headers in first row.
