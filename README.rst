@@ -73,11 +73,19 @@ So the arguments to ``Column(...)`` are:
 2. optional ``header``. If not present, the name of the first input key is used.
 
 3. optional ``reduce`` is a function to reduce a list of values to one -- if
-   you specified more than one input key (the default is ``pop()``, i.e. take
-   the first)
+   you specified more than one input key.
 
-4. optional ``function`` is a function to transform the single result value
-   (the default identity: ``lambda x:x``, i.e. no change)
+4. optional ``function`` is a function to transform the result value
+   (the default makes no change). If there is a ``reduce`` function, this
+   takes the output of reduce as its single argument. Otherwise it gets
+   passed the list of selected values as expanded kwargs, so you can
+   write::
+
+       Column('Profit', 
+           'sales', 
+           'cost_of_sales', 
+           function=lambda income, cost: income - cost
+       )
 
 Then ``ColumnSpecification`` provides useful methods:
 
@@ -142,23 +150,3 @@ ToDo
                   .select_related(*colspec.related())\
                   .values(*colspec.inputs())
 
-
-- Make it easier to write anonymous lambda functions to reduce and process values.
-  At the moment ``reduce`` functions take a list as arguyments, so if I want to 
-  write a lambda reduce function I have to accept a list::
-
-        Column('Profit', 
-            'sales', 
-            'cost_of_sales', 
-            reduce=lambda args: args[0] - args[1])
-
-  Which sucks. If reduce always takes a list (so we can do ``reduce=sum``).
-  Then give us a choice for ``function``. If there is a reduce function, 
-  pass the singleton result of calling reduce. Otherwise, pass all the
-  input values to ``function`` as ``*args``, then I can write 
-  lambda funcions like this::
-        
-        Column('Profit', 
-            'sales', 
-            'cost_of_sales', 
-            function=lambda income, cost: income - cost)

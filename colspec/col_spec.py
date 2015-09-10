@@ -28,8 +28,14 @@ class Column(object):
             value None, then you still get None, not this default.
 
         """
-        self.fn = kwargs.get('function', lambda x: x)
-        self.rx = kwargs.get('reduce', list.pop)
+        def first_identity(*x):
+            """ like the identity function (lambda x: x)
+            but works with multiple args too, in which case
+            it returns the first
+            """
+            return x[0]
+        self.fn = kwargs.get('function', first_identity)
+        self.rx = kwargs.get('reduce', None)
         self.default = kwargs.get('default')
         self.keys = list(input_keys)
         self.header = kwargs.get('header', self.keys[0])
@@ -38,9 +44,11 @@ class Column(object):
         return self.keys
 
     def value(self, context):
-        return self.fn(
-                self.rx(
-                    [context.get(key, self.default) for key in self.keys]))
+        vals = [context.get(key, self.default) for key in self.keys]
+        if self.rx:
+            return self.fn(self.rx(vals))
+        else:
+            return self.fn(*vals)
 
 
 class ColumnSpecification(object):
@@ -54,7 +62,7 @@ class ColumnSpecification(object):
 
     def __init__(self, *cols):
         """
-        Expects a list of Col() objects as parameters
+        Expects a list of Column() objects as parameters
         """
         self.cols = cols
 
