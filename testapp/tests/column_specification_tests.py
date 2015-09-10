@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from excel_view import ColSpec, Col
+from ..colspec import ColSpec, Col
 
 
 class ColumnSpecificationTests(TestCase):
