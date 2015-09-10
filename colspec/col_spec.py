@@ -1,24 +1,38 @@
 class Column(object):
 
-    def __init__(self, header, *input_keys, **kwargs):
+    def __init__(self, *input_keys, **kwargs):
         """
-        :Header is text for the spreadsheet header row.
-        :Keys are a list of input data keys required in the
-        context dictionary to produce the out put value
-        :reduce is an optional function to reduce a list
-        of values into one
-        :function is an optional transformation function
-        to perform on the reduced value
-        :default is an optional value to use instead of
-        null if an input key is not found in the context
-        dictionary. Note that if the key is there with value
-        None, then you still get None, not this default.
+
+        positionalk params:
+
+        :input_keys:
+            a list of input data keys required in the context
+            dictionary to produce the out put value
+
+        keyword arguments:
+
+        :header:
+            text for the spreadsheet header row. If not specified the
+            name of the first (only?) input_key is used
+
+        :reduce:
+            an optional function to reduce a list of values into one
+
+        :function:
+            is an optional transformation function to perform on the reduced
+            value
+
+        :default:
+            is an optional value to use instead of null if an input key is not
+            found in the context dictionary. Note that if the key is there with
+            value None, then you still get None, not this default.
+
         """
         self.fn = kwargs.get('function', lambda x: x)
         self.rx = kwargs.get('reduce', list.pop)
         self.default = kwargs.get('default')
-        self.header = header
-        self.keys = list(input_keys) if input_keys else [header]
+        self.keys = list(input_keys)
+        self.header = kwargs.get('header', self.keys[0])
 
     def inputs(self):
         return self.keys

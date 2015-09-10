@@ -31,13 +31,21 @@ make a column specification::
 
     colspec = ColumnSpecification(
         Column('id'),
-        Column('Business', 'business_name'),
-        Column('Name', 'user__name', 'user__oname', 'user__sname',
-            reduce=" ".join),
-        Column('Full cost', 'price', 'vat', reduce=sum)
-        Column('Status', 'status_code',
-            function=status_codes.get),
-         ...)
+        Column('business_name', header='Business'),
+        Column('user__name', 'user__oname', 'user__sname',
+            header='Name',
+            reduce=" ".join,
+        ),
+        Column('price', 'vat', 
+            header='Full cost', 
+            reduce=sum,
+        )
+        Column('status_code',
+            header='Status', 
+            function=status_codes.get,
+        ),
+        ...,
+    )
 
 - The first column heading is **id** and that's also the dictionary
   key of the id field
@@ -60,10 +68,9 @@ make a column specification::
 
 So the arguments to ``Column(...)`` are:
 
-1. A mandatory column header.
+1. List of input dictionary keys
 
-2. the remainder of ``*args`` are input dictionary keys
-   (default = header)
+2. optional ``header``. If not present, the name of the first input key is used.
 
 3. optional ``reduce`` is a function to reduce a list of values to one -- if
    you specified more than one input key (the default is ``pop()``, i.e. take

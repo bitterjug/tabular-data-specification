@@ -7,16 +7,19 @@ from colspec import ColumnSpecification, Column
 def colspec():
     return ColumnSpecification(
         Column("One"),
-        Column("Two", "a"),
-        Column("Three", "b", "c", reduce=sum),
-        Column("Four", 'd', 'e', reduce=" ".join)
+        Column("a", header="Two"),
+        Column("b", "c", header="Three", reduce=sum),
+        Column('d', 'e', header="Four", reduce=" ".join)
     )
+
 
 def test_headers(colspec):
     assert colspec.headers() == ["One", "Two", "Three", "Four"]
 
+
 def test_inputs(colspec):
     assert colspec.inputs() == ["One", "a", "b", "c", "d", "e"]
+
 
 def test_values(colspec):
     context = {
@@ -29,15 +32,17 @@ def test_values(colspec):
     }
     assert colspec.values(context) == [6, 1, 5, "foo bar"]
 
+
 def test_fn():
     def inc(x):
         return x + 1
     colspec = ColumnSpecification(Column('Header', 'key', function=inc))
     assert colspec.values({'key': 1}) == [2]
 
+
 def test_default():
     colspec = ColumnSpecification(Column('Header', 'key', default=7))
-    assert  colspec.values({}) == [7]
+    assert colspec.values({}) == [7]
 
 
 def test_default_and_fn():
