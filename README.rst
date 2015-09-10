@@ -1,9 +1,8 @@
-django-excel-view
-=================
+Tabular Data Specification
+==========================
 
-A wraper for django-excel-response_ for DRY simple spreadsheets including a class-based view.
-
-.. _django-excel-response: https://bitbucket.org/kmike/django-excel-response
+Reusable DRY specification for spreadsheet exports to use in, e.g.
+Django projects.
 
 -----
 Use
@@ -14,32 +13,29 @@ Column Specifications
 ---------------------
 
 
-Django-excel-response makes it easy to make spreadsheets. 
-As you can see from its readme, it likes to get a queryset
-or a list of lists. If you give it a list of lists, its up 
-to you to make the headers line up with the content. 
-Its up to you to fetch the data and marshall it into lists too. 
-Specifying the column headings and content
-separately felt too un-DRY. 
+Django-excel-response makes it easy to make spreadsheets.  As you can see from
+its readme, it likes to get a queryset or a list of lists. If you give it a
+list of lists, its up to you to make the headers line up with the content.  Its
+up to you to fetch the data and marshall it into lists too.  Specifying the
+column headings and content separately felt too un-DRY. 
 
 My data comes from a  queryset. I join the related models using
-``select_related()``, and fetch out a dictionary of the fields I'm
-interested in, with their values, using ``values()``. 
-I can give these dictionaries directly to django-excel-response,
-and it will use the keys as column headings.
-Sometimes, however, I want to include values derived from 
-other values, or to do post-processing on the values. Somtiems
-I want better column headings.  So I make a column specification::
+``select_related()``, and fetch out a dictionary of the fields I'm interested
+in, with their values, using ``values()``.  I can give these dictionaries
+directly to django-excel-response, and it will use the keys as column headings.
+Sometimes, however, I want to include values derived from other values, or to
+do post-processing on the values. Somtiems I want better column headings.  So I
+make a column specification::
 
-    from excel_view import ColSpec, Col
+    from colspec import ColumnSpecification, Column
 
-    colspec = ColSpec(
-        Col('id'),
-        Col('Business', 'business_name'),
-        Col('Name', 'user__name', 'user__oname', 'user__sname',
+    colspec = ColumnSpecification(
+        Column('id'),
+        Column('Business', 'business_name'),
+        Column('Name', 'user__name', 'user__oname', 'user__sname',
             reduce=" ".join),
-        Col('Full cost', 'price', 'vat', reduce=sum)
-        Col('Status', 'status_code',
+        Column('Full cost', 'price', 'vat', reduce=sum)
+        Column('Status', 'status_code',
             function=status_codes.get),
          ...)
 
@@ -48,19 +44,18 @@ I want better column headings.  So I make a column specification::
 
 - The second column heading is **Business** and contains the ``business_name``
 
-- The **Name** column contains the result of joining together
-  three name fields from a related model linked by ``user`` field.
-  ``user__name`` fetches the ``name`` field from the related ``user``
-  object, etc.  And ``" ".join`` is a function to join strings with spaces,
-  it reduces the list of three name values to one string value.
+- The **Name** column contains the result of joining together three name fields
+  from a related model linked by ``user`` field.  ``user__name`` fetches the
+  ``name`` field from the related ``user`` object, etc.  And ``" ".join`` is a
+  function to join strings with spaces, it reduces the list of three name
+  values to one string value.
 
-- Similarly the **Full cost** column is the sum of
-  two numeric values calculated using the ``sum`` built-in
+- Similarly the **Full cost** column is the sum of two numeric values
+  calculated using the ``sum`` built-in
 
-- **Status*** column values are strings that correspond
-  to code values stored in the DB. So we use the ``status_codes``
-  dictionary's ``get()`` method, as a function argument,
-  to convert them.
+- **Status*** column values are strings that correspond to code values stored
+  in the DB. So we use the ``status_codes`` dictionary's ``get()`` method, as a
+  function argument, to convert them.
 
 
 So the arguments to ``Col(...)`` are:
@@ -70,14 +65,12 @@ So the arguments to ``Col(...)`` are:
 2. the remainder of ``*args`` are input dictionary keys
    (default = header)
 
-3. optional ``reduce`` is a function to reduce a list
-   of values to one -- if you specified more than
-   one input key (the default is ``pop()``, i.e. take
+3. optional ``reduce`` is a function to reduce a list of values to one -- if
+   you specified more than one input key (the default is ``pop()``, i.e. take
    the first)
 
-4. optional ``function`` is a function to transform the
-   single result value (the default identity:
-   ``lambda x:x``, i.e. no change)
+4. optional ``function`` is a function to transform the single result value
+   (the default identity: ``lambda x:x``, i.e. no change)
 
 Then ``ColSpec`` provides useful methods:
 
@@ -104,19 +97,6 @@ Then ``ColSpec`` provides useful methods:
 4. ``headers()`` returns the column headers::
 
     return ExcelResponse(data_rows, headers=colspec.headers())
-
-
-Class-based View
------------------
-``ExcelView`` is a view object that returns a spreadsheet
-defined with a ``ColSpec``::
-
-    from excel_view import ExcelView, ColSpec, Col
-    
-    class Report(ExcelView):
-        colsepc = ColSpec(...)
-        file_name = "my_report"
-        queryset = MyObjects.filter(...)
 
 
 --------
